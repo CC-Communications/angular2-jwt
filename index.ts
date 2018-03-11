@@ -3,6 +3,7 @@ import { JwtInterceptor } from './src/jwt.interceptor';
 import { JwtHelperService } from './src/jwthelper.service';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { JWT_OPTIONS } from './src/jwtoptions.token';
+import { Observable } from 'rxjs/Observable';
 
 export * from './src/jwt.interceptor';
 export * from './src/jwthelper.service';
@@ -17,6 +18,8 @@ export interface JwtModuleOptions {
     whitelistedDomains?: Array<string | RegExp>;
     throwNoTokenError?: boolean;
     skipWhenExpired?: boolean;
+    beforeRefreshSeconds: number; // check to see if the token expires soon and go ahead and refresh
+    tokenRefresher?: ()=> Observable<string>;
   }
 }
 
