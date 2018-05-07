@@ -11,7 +11,7 @@ import { JWT_OPTIONS } from "./jwtoptions.token";
 import { Observable } from "rxjs/Observable";
 import { BehaviorSubject } from "rxjs/BehaviorSubject";
 import { _throw } from "rxjs/observable/throw";
-import { mergeMap, switchMap, filter, take} from "rxjs/operators";
+import { mergeMap, switchMap, filter, take } from "rxjs/operators";
 
 import "rxjs/add/observable/fromPromise";
 import "rxjs/add/operator/catch";
@@ -54,7 +54,9 @@ export class JwtInterceptor implements HttpInterceptor {
         domain =>
           typeof domain === "string"
             ? domain === requestUrl.host
-            : domain instanceof RegExp ? domain.test(requestUrl.host) : false
+            : domain instanceof RegExp
+              ? domain.test(requestUrl.host)
+              : false
       ) > -1
     );
   }
@@ -139,9 +141,11 @@ export class JwtInterceptor implements HttpInterceptor {
           switch ((<HttpErrorResponse>error).status) {
             case 401:
               return this.refreshToken(request, next);
+            default:
+              return _throw(error);
           }
         } else {
-          return Observable.throw(error);
+          return _throw(error);
         }
       });
     }
