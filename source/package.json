@@ -28,19 +28,19 @@
   "typings": "index.d.ts",
   "homepage": "https://github.com/auth0/angular2-jwt",
   "peerDependencies": {
-    "@angular/common": "^4.4.6||^5.0.0"
+    "@angular/common": "~7.0.0"
   },
   "devDependencies": {
-    "@angular/animations": "^4.4.6||^5.0.0",
-    "@angular/common": "^4.4.6||^5.0.0",
-    "@angular/compiler": "^4.4.6||^5.0.0",
-    "@angular/compiler-cli": "^4.4.6||^5.0.0",
-    "@angular/core": "^4.4.6||^5.0.0",
-    "@angular/http": "^4.4.6||^5.0.0",
-    "@angular/platform-browser": "^4.4.6||^5.0.0",
-    "@angular/platform-browser-dynamic": "^4.4.6||^5.0.0",
-    "@angular/platform-server": "^4.4.6||^5.0.0",
-    "@angular/router": "^4.4.6||^5.0.0",
+    "@angular/animations": "~7.0.0",
+    "@angular/common": "~7.0.0",
+    "@angular/compiler": "~7.0.0",
+    "@angular/compiler-cli": "~7.0.0",
+    "@angular/core": "~7.0.0",
+    "@angular/http": "~7.0.0",
+    "@angular/platform-browser": "~7.0.0",
+    "@angular/platform-browser-dynamic": "~7.0.0",
+    "@angular/platform-server": "~7.0.0",
+    "@angular/router": "~7.0.0",
     "@types/hammerjs": "^2.0.34",
     "@types/jasmine": "^2.5.47",
     "@types/node": "^7.0.22",
@@ -52,15 +52,15 @@
     "loader-utils": "^1.1.0",
     "reflect-metadata": "^0.1.10",
     "rimraf": "^2.6.1",
-    "rxjs": "^5.5.2",
+    "rxjs": "^6.3.3",
     "semantic-release": "^6.3.6",
     "source-map-loader": "^0.2.1",
     "ts-helpers": "^1.1.2",
     "tslint": "^5.9.1",
     "tslint-loader": "^3.5.3",
-    "typescript": "~2.6.2",
+    "typescript": "3.1.6",
     "webpack": "^3.1.0",
-    "zone.js": "^0.8.11"
+    "zone.js": "^0.8.26"
   },
   "dependencies": {
     "url": "^0.11.0"

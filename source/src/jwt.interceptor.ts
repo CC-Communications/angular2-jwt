@@ -8,15 +8,17 @@ import {
 } from "@angular/common/http";
 import { JwtHelperService } from "./jwthelper.service";
 import { JWT_OPTIONS } from "./jwtoptions.token";
-import { Observable } from "rxjs/Observable";
-import { BehaviorSubject } from "rxjs/BehaviorSubject";
-import { _throw } from "rxjs/observable/throw";
-import { mergeMap, switchMap, filter, take } from "rxjs/operators";
+import { Observable, BehaviorSubject, throwError as _throw, from } from "rxjs";
+import {
+  mergeMap,
+  switchMap,
+  filter,
+  take,
+  catchError,
+  finalize
+} from "rxjs/operators";
 
-import "rxjs/add/observable/fromPromise";
-import "rxjs/add/operator/catch";
-import "rxjs/add/operator/finally";
-var url = require("url");
+let url = require("url");
 
 @Injectable()
 export class JwtInterceptor implements HttpInterceptor {
@@ -50,13 +52,12 @@ export class JwtInterceptor implements HttpInterceptor {
     const requestUrl = url.parse(request.url);
 
     return (
-      this.whitelistedDomains.findIndex(
-        domain =>
-          typeof domain === "string"
-            ? domain === requestUrl.host
-            : domain instanceof RegExp
-              ? domain.test(requestUrl.host)
-              : false
+      this.whitelistedDomains.findIndex(domain =>
+        typeof domain === "string"
+          ? domain === requestUrl.host
+          : domain instanceof RegExp
+          ? domain.test(requestUrl.host)
+          : false
       ) > -1
     );
   }
@@ -70,22 +71,21 @@ export class JwtInterceptor implements HttpInterceptor {
 
       this.tokenSubject.next(null);
 
-      return this.tokenRefresher()
-        .pipe(
-          switchMap((newToken: string) => {
-            if (newToken) {
-              this.tokenSubject.next(newToken);
-              return next.handle(this.addToken(req, newToken));
-            }
-            return _throw("We did not receive a new token on refresh");
-          })
-        )
-        .catch(error => {
+      return this.tokenRefresher().pipe(
+        switchMap((newToken: string) => {
+          if (newToken) {
+            this.tokenSubject.next(newToken);
+            return next.handle(this.addToken(req, newToken));
+          }
+          return _throw("We did not receive a new token on refresh");
+        }),
+        catchError(error => {
           return _throw(error);
-        })
-        .finally(() => {
+        }),
+        finalize(() => {
           this.isRefreshingToken = false;
-        });
+        })
+      );
     } else {
       return this.tokenSubject.pipe(
         filter(token => token != null),
@@ -133,21 +133,23 @@ export class JwtInterceptor implements HttpInterceptor {
       } else if (token && this.isWhitelistedDomain(request)) {
         request = this.addToken(request, token);
       }
-      return next.handle(request).catch(error => {
-        if (
-          error instanceof HttpErrorResponse &&
-          this.isWhitelistedDomain(request)
-        ) {
-          switch ((<HttpErrorResponse>error).status) {
-            case 401:
-              return this.refreshToken(request, next);
-            default:
-              return _throw(error);
+      return next.handle(request).pipe(
+        catchError(error => {
+          if (
+            error instanceof HttpErrorResponse &&
+            this.isWhitelistedDomain(request)
+          ) {
+            switch ((<HttpErrorResponse>error).status) {
+              case 401:
+                return this.refreshToken(request, next);
+              default:
+                return _throw(error);
+            }
+          } else {
+            return _throw(error);
           }
-        } else {
-          return _throw(error);
-        }
-      });
+        })
+      );
     }
   }
 
@@ -158,7 +160,7 @@ export class JwtInterceptor implements HttpInterceptor {
     const token: any = this.tokenGetter();
 
     if (token instanceof Promise) {
-      return Observable.fromPromise(token).pipe(
+      return from(token).pipe(
         mergeMap((asyncToken: string) => {
           return this.handleInterception(asyncToken, request, next);
         })
